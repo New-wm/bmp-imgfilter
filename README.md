@@ -4,15 +4,14 @@
 
 ![四种效果对比](demo.jpg)
 
-做这个的起因是想弄明白手机里那些「黑白」「磨皮」「锐化」到底在像素上做了什么，所以干脆用最原始的方式手写一遍。
-
 ## 编译
 
 ```bash
 gcc imgfilter.c -o imgfilter.exe
 ```
 
-Dev-C++ 中打开 `imgfilter.c` 按 F11 即可。
+**VS Code**：安装 C/C++ 扩展和 gcc（Windows 可用 `winget install BrechtSanders.WinLibs.POSIX.UCRT` 安装 MinGW-w64），
+打开 imgfilter 文件夹后按 `Ctrl+Shift+B` 编译，或在终端直接执行上面的 gcc 命令。
 
 ## 用法
 
@@ -24,6 +23,16 @@ imgfilter.exe 输入.bmp 输出.bmp edge      # Sobel 边缘检测
 ```
 
 输入输出均为 **24 位未压缩 BMP**。JPG/PNG 先用「画图」打开，另存为「24 位位图」即可。
+
+⚠️ 注意：Win11 新版「画图」另存 BMP 默认导出 32 位（带 alpha），本程序只接受 24 位。
+若报 `Only 24-bit uncompressed BMP is supported (depth 32...)`，用 PowerShell 转一次：
+
+Add-Type -AssemblyName System.Drawing
+$i=[System.Drawing.Image]::FromFile("photo.bmp")
+$b=New-Object System.Drawing.Bitmap($i.Width,$i.Height,[System.Drawing.Imaging.PixelFormat]::Format24bppRgb)
+$g=[System.Drawing.Graphics]::FromImage($b); $g.DrawImage($i,0,0,$i.Width,$i.Height); $g.Dispose(); $i.Dispose()
+$b.Save("$PWD\photo24.bmp",[System.Drawing.Imaging.ImageFormat]::Bmp); $b.Dispose()
+
 
 ## 四个滤镜做了什么
 
